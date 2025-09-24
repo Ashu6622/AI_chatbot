@@ -11,12 +11,6 @@ app.use(cors());
 app.use(express.json());
 const PORT = 3001;
 
-
-app.get('/', (req, res)=>{
-    res.send('WelCome to ChatGPT')
-})
-
-
 app.post('/chat', async (req, res)=>{
     const {message, userId} = req.body;
   
