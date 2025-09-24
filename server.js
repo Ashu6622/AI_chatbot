@@ -18,17 +18,31 @@ app.get('/', (req, res)=>{
 
 
 app.post('/chat', async (req, res)=>{
-    const {message} = req.body;
-    // console.log("message : ",  req.body)
+    const {message, userId} = req.body;
+  
     if(!message){
         return res.json({message:'Empty Message'})
     }
-    // console.log(message);
 
-    const response = await generate(message);
-    return res.json({message : response});
+    try {
+        // Create a timeout promise
+        const timeoutPromise = new Promise((_, reject) => {
+            setTimeout(() => reject(new Error('Timeout')), 20000); // 20 seconds
+        });
 
+        // Race between generate function and timeout
+        const response = await Promise.race([
+            generate(message, userId),
+            timeoutPromise
+        ]);
 
+        return res.json({message : response});
+    } catch (error) {
+        if (error.message === 'Timeout') {
+            return res.json({message: 'Request timed out. Please try again.'});
+        }
+        return res.json({message: 'An error occurred. Please try again.'});
+    }
 })
 
 app.listen(PORT, ()=>{

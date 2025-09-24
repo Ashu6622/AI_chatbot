@@ -4,39 +4,63 @@ import {tavily}  from "@tavily/core";
 // import readline from 'node:readline/promises'
 dotenv.config();
 
+import NodeCache from "node-cache";
+var myCache = new NodeCache({ stdTTL: 60*60*24});
 const groq = new Groq({ apiKey: process.env.GROK_API });
 const tvly = tavily({ apiKey: process.env.TAVILY_API_KEY  });
 
-export async function generate(question){
+
+// preventing ininite loop with LLM and chatbot
+//adding memory of the chat to the llama
+
+export async function generate(question, userId){
 
    
-    const messages = [
+    const baseMessage = [
             {
                 role:'system',
                 content:`You are a smart personal assistant who answers the asked question. give short and customized answer.
                 You have access to following tools:
                 1. webSearch({query} : {query: string}) // Search the latest information and real-time data on internet.
+                Use it when user asks about recent information or news or about current  events.
                 current date and time: ${new Date().toUTCString()};
-                `
-            },
-            // {
-            //     role:'user',
-            //     // content:'What is array in programming'
-            //     content:'What is current weather in Mumbai'
-            //     // content:"When Iphone 16 was launched"
-            // }
+                If you have the answer in points like
+                1. This is one Point, 2. This is second Point, and so on then display it in a wat that every point must display in new line like
+                1) First Point
+                2) Second point
+                3) Third Point
+
+                When providing code:
+                - Always wrap code in triple backticks  with language name
+                - Example: java (newline) code here (newline) 
+                - Give proper approach and explanation
+                - Provide dry run example if requested
+                - Ensure proper indentation and formatting within code blocks
+                
+
+                if the answer u are providing  contains points under main points then make the points as numerical and the sub point as bullet points also bold the important word`
+            }
           ]
 
-    
-   
-
+        const messages = myCache.has(userId) ? myCache.get(userId) : baseMessage;
 
         messages.push({
             role:'user',
             content: question
         })
 
+        const MAX_RETRIES = 10;
+        let count = 0
+
+
         while(true){
+
+            if(count > MAX_RETRIES){
+                return 'Sorry could not fund the result, please try again'
+            }
+
+            count++;
+            // console.log(count);
 
         const completions = await groq.chat.completions.create({
           model: "llama-3.3-70b-versatile",
@@ -66,12 +90,14 @@ export async function generate(question){
     })
 
     messages.push(completions.choices[0].message)
+    // console.log("answer => ", completions.choices[0].message)
 
     const toolCalls = completions.choices[0].message.tool_calls;
 
     if(!toolCalls){
         // console.log(`Assistant : ${completions.choices[0].message.content}`)
-        console.log(messages)
+        // console.log(messages)
+        myCache.set(userId, messages);
         return completions.choices[0].message.content
         // break;
     }
