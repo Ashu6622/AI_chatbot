@@ -36,7 +36,7 @@ async function generate(text){
 
     input.value = '';
 
-    console.log(loading)
+    // console.log(loading)
     chatContainer?.appendChild(loading)
 
     // call server
