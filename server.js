@@ -24,24 +24,28 @@ app.post('/chat', async (req, res)=>{
         return res.json({message:'Empty Message'})
     }
 
-    try {
-        // Create a timeout promise
-        const timeoutPromise = new Promise((_, reject) => {
-            setTimeout(() => reject(new Error('Timeout')), 20000); // 20 seconds
-        });
-
-        // Race between generate function and timeout
-        const response = await Promise.race([
-            generate(message, userId),
-            timeoutPromise
-        ]);
-
-        return res.json({message : response});
-    } catch (error) {
-        if (error.message === 'Timeout') {
+    let responseReturned = false;
+    
+    // Set 20-second timeout
+    setTimeout(() => {
+        if (!responseReturned) {
+            responseReturned = true;
             return res.json({message: 'Request timed out. Please try again.'});
         }
-        return res.json({message: 'An error occurred. Please try again.'});
+    }, 20000);
+
+    try {
+        const response = await generate(message, userId);
+        
+        if (!responseReturned) {
+            responseReturned = true;
+            return res.json({message: response});
+        }
+    } catch (error) {
+        if (!responseReturned) {
+            responseReturned = true;
+            return res.json({message: 'An error occurred. Please try again.'});
+        }
     }
 })
 
