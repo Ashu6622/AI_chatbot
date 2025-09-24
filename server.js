@@ -13,6 +13,7 @@ const PORT = 3001;
 
 app.post('/chat', async (req, res)=>{
     const {message, userId} = req.body;
+    // console.log(message, userId);
   
     if(!message){
         return res.json({message:'Empty Message'})

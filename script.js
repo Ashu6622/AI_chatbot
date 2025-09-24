@@ -120,8 +120,8 @@ async function generate(text){
 }
 
   async function callServer(inputText){
-    console.log(inputText, userId)
-            const response = await fetch('/chat', {
+    
+            const response = await fetch('https://ask-me-two.vercel.app/chat', {
                 method:'POST',
                 headers:{
                     'Content-Type': 'application/json'
