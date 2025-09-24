@@ -17,5 +17,8 @@
     "express": "^5.1.0",
     "groq-sdk": "^0.32.0",
     "node-cache": "^5.1.2"
+  },
+  "engines": {
+    "node": "22.x"
   }
 }
