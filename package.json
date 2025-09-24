@@ -1,21 +1,11 @@
 {
-  "name": "frontend",
+  "name": "chatgpt-clone",
   "version": "1.0.0",
-  "description": "",
-  "license": "ISC",
-  "author": "",
   "type": "module",
-  "main": "server.js",
-  "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1",
-    "start": "node server.js"
-  },
   "dependencies": {
-    "@tavily/core": "^0.5.12",
-    "cors": "^2.8.5",
-    "dotenv": "^17.2.2",
-    "express": "^5.1.0",
-    "groq-sdk": "^0.32.0",
-    "node-cache": "^5.1.2"
+    "groq-sdk": "^0.7.0",
+    "@tavily/core": "^0.0.3",
+    "node-cache": "^5.1.2",
+    "dotenv": "^16.3.1"
   }
 }
